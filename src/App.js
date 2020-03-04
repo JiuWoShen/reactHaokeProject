@@ -1,6 +1,9 @@
 import React from 'react';
 import './App.css';
 
+// 导入字体图标
+import './assets/fonts/iconfont.css'
+
 // 导入路由组件-----写最外层路由---app.js
 import {HashRouter as Router,Route,Switch,Redirect} from 'react-router-dom'
 

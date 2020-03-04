@@ -1,9 +1,9 @@
-import React,{Component} from 'react'
+import React, { Component } from 'react'
 
 import styles from './index.module.scss'
 
 // 导入路由-----这里是第二层路由--不需要HashRouter
-import {Route,Switch,Redirect,Link} from 'react-router-dom'
+import { Route, Switch, Redirect } from 'react-router-dom'
 
 // 导入子组件
 import Home from '../Home'
@@ -12,12 +12,74 @@ import My from '../My'
 import News from '../News'
 import NotFound from '../NotFound'
 
-export default class Layout extends Component{
-    render(){
+import { TabBar } from 'antd-mobile';
+
+export default class Layout extends Component {
+    constructor(props) {
+        super()
+        this.state = {
+            selectedPath: props.location.pathname
+        }
+    }
+    // tabs数组
+    TABS = [
+        {
+            title: "首页",
+            icon: "icon-index",
+            path: "/layout/index"
+        },
+        {
+            title: "找房",
+            icon: "icon-findHouse",
+            path: "/layout/houselist"
+        },
+        {
+            title: "资讯",
+            icon: "icon-info",
+            path: "/layout/news"
+        },
+        {
+            title: "我的",
+            icon: "icon-my",
+            path: "/layout/my"
+        }
+    ];
+    renderTabBar = () => {
         return (
-            <div className={styles.test}>
+            <TabBar tintColor="#21B97A" noRenderContent={true}>
+                {
+                    // 遍历数据生成tab项
+                    this.TABS.map(item => {
+                        return (
+                            <TabBar.Item
+                            title={item.title}
+                            key={item.path}
+                            icon={<i className={`iconfont ${item.icon}`} />}
+                            selectedIcon={<i className={`iconfont ${item.icon}`} />}
+                            selected={this.state.selectedPath === item.path}
+                            onPress={() => {
+                                this.setState({
+                                    selectedPath: item.path
+                                });
+
+                                // 编程式导航切换页面-----之前是通过Link
+                                if(this.state.selectedPath !== item.path){
+                                    this.props.history.push(item.path)
+                                }
+                            }}
+                        ></TabBar.Item>
+                        )
+                    })
+                }
+            </TabBar>
+        )
+    }
+
+    render() {
+        return (
+            <div className={styles.layout}>
                 {/* 内容部分 */}
-                <div style={{height:500}}>
+                <div>
                     <Switch>
                         <Route path='/layout/index' component={Home} />
                         <Route path='/layout/houselist' component={HouseList} />
@@ -31,12 +93,7 @@ export default class Layout extends Component{
                 </div>
 
                 {/* tabBar */}
-                <div style={{position:'fixed',bottom:0,left:0}}>
-                    <Link to='/layout/index'>首页</Link>&nbsp;&nbsp;&nbsp;
-                    <Link to='/layout/houselist'>找房</Link>&nbsp;&nbsp;&nbsp;
-                    <Link to='/layout/news'>咨询</Link>&nbsp;&nbsp;&nbsp;
-                    <Link to='/layout/my'>我的</Link>&nbsp;&nbsp;&nbsp;
-                </div>
+                {this.renderTabBar()}
             </div>
         )
     }
