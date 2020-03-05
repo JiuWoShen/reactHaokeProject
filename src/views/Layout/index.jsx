@@ -80,6 +80,7 @@ export default class Layout extends Component {
             <div className={styles.layout}>
                 {/* 内容部分 */}
                 <div>
+                    {/* layout的路由是tabbar不会切换 */}
                     <Switch>
                         <Route path='/layout/index' component={Home} />
                         <Route path='/layout/houselist' component={HouseList} />
