@@ -127,7 +127,7 @@ class CityList extends Component {
                         rowCount={cityIndexList.length}
                         // 每行高度----可以是个方法
                         rowHeight={this.calRowHeight}
-                        // 行数据的渲染
+                        // 行数据的渲染---可以是数据也可以是方法
                         rowRenderer={this.rowRenderer}
                         width={width}
                     />
