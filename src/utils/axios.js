@@ -8,3 +8,5 @@ axios.defaults.baseURL = BASE_URL
 
 // 将axios实例挂在到component原型上
 Component.prototype.axios = axios
+
+export { axios } 

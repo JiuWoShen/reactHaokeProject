@@ -1,6 +1,9 @@
 import React from 'react';
 import './App.css';
 
+//  导入虚拟化长列表样式
+import 'react-virtualized/styles.css'
+
 // 导入字体图标
 import './assets/fonts/iconfont.css'
 
@@ -19,7 +22,7 @@ function App() {
   return (
     <Router>
       {/* 设置路由规则-----第一层路由 */}
-      <div>
+      <div style={{height:'100%'}}>
         {/* 使用重定向必须用Switch包裹 */}
         <Switch>
           <Route path='/citylist' component={CityList} />
