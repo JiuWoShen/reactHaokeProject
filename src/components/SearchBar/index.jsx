@@ -24,7 +24,7 @@ function SearchBar ({cityname,history}){
                     <span>请输入小区地址</span>
                 </div>
             </Flex>
-            <i className='iconfont icon-map'></i>
+            <i onClick={() => {history.push('/map')}} className='iconfont icon-map'></i>
         </Flex>
     )
 }

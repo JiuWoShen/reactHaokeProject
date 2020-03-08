@@ -14,6 +14,7 @@ import {HashRouter as Router,Route,Switch,Redirect} from 'react-router-dom'
 import Layout from './views/Layout'
 import Login from './views/Login'
 import NotFound from './views/NotFound'
+import Map from './views/Map'
 
 import CityList from './views/CityList'
 
@@ -28,6 +29,7 @@ function App() {
           <Route path='/citylist' component={CityList} />
           <Route path='/layout' component={Layout} />
           <Route path='/login' component={Login} />
+          <Route path='/map' component={Map} />
           {/* 重定向要写在已有路径之后 */}
           <Redirect exact from='/' to='/layout' />
           {/* 404写在最后 */}
