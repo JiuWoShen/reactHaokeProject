@@ -43,4 +43,4 @@ const getCurrentCity=()=>{
     }
 }
 
-export { getCurrentCity }
+export { getCurrentCity,setCity }

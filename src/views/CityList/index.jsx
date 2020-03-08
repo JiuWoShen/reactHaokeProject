@@ -1,22 +1,31 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import MyNavBar from '../../components/MyNavBar'
 import styles from './index.module.scss'
 // 导入长列表渲染数据
 import {AutoSizer, List} from 'react-virtualized'
 
 import { getCurrentCity } from '../../utils/citys'
+import { Toast } from 'antd-mobile'
+
+import {setCity} from '../../utils/citys.js'
 
 // 标题的高度
 const TITLEHEIGHT = 36
 // 每一行的高度
 const ROWHEIGHT = 50
+// 有房源的城市
+const HASRESOURCECITYS = ["北京", "上海", "广州", "深圳"]
 
 class CityList extends Component {
+    // 创建一个能够取到LIst对象的ref
+    ListRef = React.createRef()
+
     constructor(){
         super()
         this.state={
             cityListObj:null,  // 左边城市列表对象
-            cityIndexList:null  // 右边索引
+            cityIndexList:null,  // 右边索引
+            selectIndex:0  //右边默认选中索引
         }
     }
 
@@ -93,6 +102,19 @@ class CityList extends Component {
         }
     }
 
+    // 点击切换定位城市
+    toggleCity=({label,value})=>{
+        if(HASRESOURCECITYS.includes(label)){//有房源的城市
+            // 将城市保存至本地
+            setCity({label,value})
+            // 返回到首页
+            this.props.history.goBack()
+
+        }else{//无房源的城市
+            Toast.info('该城市目前无房源哦~', 1);
+        }
+    }
+
     // 单位行数据的渲染
     rowRenderer=({key, index, style}) => {
         const letter = this.state.cityIndexList[index]
@@ -106,11 +128,49 @@ class CityList extends Component {
             {
                 // 渲染城市列表
                 list.map(item=>{
-                    return <div className={styles.name} key={item.value}>{item.label}</div>
+                    {/* 点击切换定位城市 */}
+                    return <div onClick={()=>this.toggleCity(item)} className={styles.name} key={item.value}>{item.label}</div>
                 })
             }
           </div>
         );
+    }
+
+    // 右边城市索引的渲染
+    renderCityIndexList=()=>{
+        const { cityIndexList,selectIndex} = this.state
+        return (
+            <div className={styles.cityIndex}>
+                {cityIndexList.map((item,index)=>{
+                    return (
+                        <div key={item} className={styles.cityIndexItem}>
+                            <span onClick={()=>this.cliskIndexList(index)} className={index===selectIndex?styles.indexActive:''}>
+                                {item==='hot'?'热': item.toUpperCase()}
+                            </span>
+                        </div>
+                    )
+                })}
+            </div>
+        )
+    }
+
+    // 点击索引左边联动滚动
+    cliskIndexList=(index)=>{
+        // console.log(index)
+        // 首先得拿到List,然后使用List滚动方法
+        // console.log(this.ListRef.current)
+        this.ListRef.current.scrollToRow(index)
+    }
+
+    //  左边滚动右边联动高亮
+    onRowsRendered=({startIndex})=>{
+        // console.log(startIndex)
+        if(this.state.selectIndex!==startIndex){
+            // console.log(startIndex)
+            this.setState({
+                selectIndex:startIndex
+            })
+        }
     }
 
     render() {
@@ -122,6 +182,7 @@ class CityList extends Component {
                 {cityListObj && <AutoSizer>
                     {({height, width}) => (
                     <List
+                        ref={this.ListRef}
                         height={height}
                         // 渲染多少行
                         rowCount={cityIndexList.length}
@@ -130,9 +191,13 @@ class CityList extends Component {
                         // 行数据的渲染---可以是数据也可以是方法
                         rowRenderer={this.rowRenderer}
                         width={width}
+                        onRowsRendered={this.onRowsRendered}
+                        scrollToAlignment='start'//滚动的对齐方式不对
                     />
                     )}
                 </AutoSizer>}
+                {/* 右边城市索引的渲染 */}
+                { cityIndexList && this.renderCityIndexList() }
             </div>
         );
     }

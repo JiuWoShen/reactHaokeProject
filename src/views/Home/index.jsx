@@ -5,6 +5,7 @@ import styles from './index.module.scss'
 import { Flex,Carousel,Grid,WingBlank } from 'antd-mobile';
 import {BASE_URL} from '../../utils/utils'
 import { Link } from 'react-router-dom'
+import { getCurrentCity } from '../../utils/citys.js'
 
 // 导入子组件
 import SearchBar from '../../components/SearchBar'
@@ -21,7 +22,8 @@ export default class Home extends Component{
         this.state={
             swipers:null, //轮播图
             groups:null, //租房小组
-            news:null //最新资讯
+            news:null, //最新资讯
+            currentCity:'深圳'
         }
     }
 
@@ -34,7 +36,14 @@ export default class Home extends Component{
     ]
     
     // 发请求获取数据
-    componentDidMount(){
+    async componentDidMount(){
+        // 获取当前城市-----返回到额是Promise对象
+        const city =await getCurrentCity()
+        // 赋值给模型值
+        this.setState({
+            currentCity:city.label
+        })
+
         // 轮播图
         this.getSwipperData()
         // 租房小组
@@ -180,7 +189,7 @@ export default class Home extends Component{
         const { swipers,groups,news } = this.state
         return (
             <div className={styles.root}>
-                <SearchBar cityname='深圳' />
+                <SearchBar cityname={this.state.currentCity} />
                 {/* 渲染轮播图 */}
                 {swipers && this.renderSwiper()}
                 {/* 渲染导航栏 */}
