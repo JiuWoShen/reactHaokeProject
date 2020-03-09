@@ -1,6 +1,8 @@
 import React,{Component} from 'react'
 import styles from './index.module.scss'
 
+import { Toast } from 'antd-mobile';
+
 // 用来获取当前城市的地址解析
 import { getCurrentCity } from '../../utils/citys.js'
 
@@ -31,8 +33,8 @@ export default class Map extends Component{
     async componentDidMount(){
         const city = await getCurrentCity()
         this.id=city.value
-
-        this.initMap(city.label)
+        
+        this.initMap(city.label) //传参是为了解析地址
     }
 
     // 初始化地图
@@ -59,13 +61,15 @@ export default class Map extends Component{
     }
     // 添加覆盖物
     addOverlay=async id=>{
+        Toast.loading('房源加载中。。。')
         // 先获取每个城市的房源信息
         let res =await this.axios.get(`/area/map?id=${id}`)
+        Toast.hide()
         // console.log(res.data.body)
         // 显示一级覆盖物-----有多少城市有房源就显示多少覆盖物
         res.data.body.forEach(item=>{
             // 解构赋值及重命名
-            const {count,label:name,coord:{longitude,latitude}} = item
+            const {count,label:name,coord:{longitude,latitude},value} = item
 
             // 创建坐标点
             var point = new BMap.Point(longitude,latitude)
@@ -87,6 +91,48 @@ export default class Map extends Component{
             label.setStyle(labelStyle)
             // 不要忘记把覆盖物添加到地图上
             this.map.addOverlay(label)
+
+            // 给一级覆盖物添加点击事件
+            label.addEventListener('click',()=>{
+                // 1.先清除一级覆盖物
+                setTimeout(()=>{
+                    this.map.clearOverlays()
+                },0)
+                // 2.更改地图中心点
+                this.map.centerAndZoom(point, 13)
+                // 3.请求二级覆盖物
+                Toast.loading('房源加载中。。。')
+                this.axios.get(`/area/map?id=${value}`).then(res=>{
+                    // console.log(res)
+                    Toast.hide()
+                    // 遍历二级房源数据
+                    res.data.body.forEach(item1=>{
+                        const {count:count1,
+                            label:label2,
+                            coord:{longitude:longitude1,latitude:latitude1},
+                            value:value1} = item1
+                        // 渲染覆盖物
+                        var point1 = new BMap.Point(longitude1,latitude1)
+                        var opts1 = {
+                            position : point1,    // 指定文本标注所在的地理位置
+                            offset   : new BMap.Size(30, -30)    //设置文本偏移量
+                        }
+                        // 创建文本标注对象
+                        var label1 = new BMap.Label('', opts1)
+                        // 设置覆盖物内容
+                        label1.setContent(
+                            `<div class=${styles.bubble}>
+                            <p class=${styles.name}>${label2}</p>
+                            <p class=${styles.name}>${count1}</p>
+                            </div>`
+                        )
+                        // 设置覆盖物样式
+                        label1.setStyle(labelStyle)
+                        // 不要忘记把覆盖物添加到地图上
+                        this.map.addOverlay(label1)
+                    })
+                })
+            })
         })
     }
 }
